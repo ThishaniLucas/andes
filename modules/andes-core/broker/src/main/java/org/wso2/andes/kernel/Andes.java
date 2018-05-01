@@ -44,6 +44,7 @@ import org.wso2.andes.kernel.slot.SlotMessageCounter;
 import org.wso2.andes.kernel.subscription.AndesSubscriptionManager;
 import org.wso2.andes.kernel.subscription.StorageQueue;
 import org.wso2.andes.metrics.MetricsConstants;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.andes.tools.utils.MessageTracer;
 import org.wso2.carbon.metrics.manager.Counter;
 import org.wso2.carbon.metrics.manager.Level;
@@ -227,6 +228,7 @@ public class Andes {
 
         //Tracing message
         MessageTracer.trace(message, MessageTracer.REACHED_ANDES_CORE);
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMetadata().getMessageID()), "Reached Andes!");
 
         inboundEventManager.messageReceived(message, andesChannel, pubAckHandler);
 

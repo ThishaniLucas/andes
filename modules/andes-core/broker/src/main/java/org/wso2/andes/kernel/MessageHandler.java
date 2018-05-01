@@ -27,6 +27,7 @@ import org.wso2.andes.kernel.slot.SlotReAssignTask;
 import org.wso2.andes.kernel.subscription.StorageQueue;
 import org.wso2.andes.server.queue.DLCQueueUtils;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -283,6 +284,7 @@ public class MessageHandler {
         readButUndeliveredMessages.putIfAbsent(message.getMessageID(), message);
         message.markAsBuffered();
         MessageTracer.trace(message, MessageTracer.METADATA_BUFFERED_FOR_DELIVERY);
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMessageID()), "Reached MsgHandler!");
     }
 
     /**

@@ -95,6 +95,7 @@ import org.wso2.andes.server.virtualhost.AMQChannelMBean;
 import org.wso2.andes.server.virtualhost.VirtualHost;
 import org.wso2.andes.store.StoredAMQPMessage;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -517,6 +518,8 @@ public class AMQChannel implements SessionConfig, AMQSessionModel
                                     MessageTracer.trace(incomingMessage.getRoutingKey(), getId(),
                                             andesChannel.getIdentifier(),
                                             MessageTracer.MESSAGE_RECEIVED_TO_AMQ_CHANNEL);
+                                    AsynchronousMessageTracer
+                                            .trace(System.currentTimeMillis(), getId().toString(), "Reached AMQChannel!");
                                 }
                                 QpidAndesBridge
                                         .messageReceived(incomingMessage, andesChannel, andesTransactionEvent);
@@ -1077,6 +1080,7 @@ public class AMQChannel implements SessionConfig, AMQSessionModel
                     MessageTracer.trace(queueEntry.getMessage().getRoutingKey(), getId(), andesChannel.getIdentifier(),
                             isAttachedToADistributedTransaction(), deliveryTag, multiple,
                             MessageTracer.ACK_RECEIVED_TO_AMQ_CHANNEL);
+                    AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(getId()), "Reached AMQChannel Ack!");
                 }
             }
             updateTransactionalActivity();

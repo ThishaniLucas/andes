@@ -40,6 +40,8 @@ import org.wso2.andes.server.subscription.Subscription;
 import org.wso2.andes.server.subscription.SubscriptionImpl;
 import org.wso2.andes.kernel.subscription.OutboundSubscription;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -243,12 +245,14 @@ public class AMQPLocalSubscription implements OutboundSubscription {
 
                 MessageTracer.trace(messageID, queueEntry.getMessage().getRoutingKey(), getChannelID(),
                         MessageTracer.SENDING_MESSAGE_TO_SUBSCRIBER);
+                AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageID), "Reached AMQPLocalSubscription!");
                 amqpSubscription.send(queueEntry);
 
             } else if (amqpSubscription instanceof SubscriptionImpl.NoAckSubscription) {
 
                 MessageTracer.trace(messageID, queueEntry.getMessage().getRoutingKey(), getChannelID(),
                         MessageTracer.SENDING_MESSAGE_TO_SUBSCRIBER);
+                AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageID), "Reached AMQPLocalSubscription!");
 
                 amqpSubscription.send(queueEntry);
 

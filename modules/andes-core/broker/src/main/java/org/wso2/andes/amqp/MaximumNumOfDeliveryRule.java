@@ -26,6 +26,7 @@ import org.wso2.andes.kernel.ProtocolMessage;
 import org.wso2.andes.server.message.AMQMessage;
 import org.wso2.andes.server.queue.QueueEntry;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 /**
  * This class represents Counting Delivery Rule
@@ -56,6 +57,7 @@ public class MaximumNumOfDeliveryRule implements AMQPDeliveryRule {
 
         MessageTracer.trace(messageID, numOfDeliveriesOfCurrentMsg, protocolMessage.getChannelID(), "Delivery count "
                 + "evaluated");
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageID), "Reached MaxNumOfDeliveryRule!");
 
         if (numOfDeliveriesOfCurrentMsg > maximumRedeliveryTimes + 1) {
             log.warn("Number of Maximum Redelivery Tries Has Breached. Message id = " + messageID);

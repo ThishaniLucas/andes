@@ -39,6 +39,7 @@ import org.wso2.andes.kernel.disruptor.waitStrategy.SleepingBlockingWaitStrategy
 import org.wso2.andes.kernel.dtx.DtxBranch;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.carbon.metrics.manager.Gauge;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.MetricManager;
@@ -201,6 +202,7 @@ public class InboundEventManager {
 
             //Tracing message activity
             MessageTracer.trace(message, MessageTracer.PUBLISHED_TO_INBOUND_DISRUPTOR);
+            AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMetadata().getMessageID()), "Reached Inbound Disruptor!");
 
             if (log.isDebugEnabled()) {
                 log.debug("[ sequence: " + sequence + " ] Message published to disruptor. Message id: "
@@ -231,6 +233,7 @@ public class InboundEventManager {
             //Tracing message
             if (MessageTracer.isEnabled()) {
                 MessageTracer.traceAck(ackData, MessageTracer.ACK_PUBLISHED_TO_DISRUPTOR );
+                AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(ackData.getMessageId()), "Reached Inbound Disruptor Ack!");
             }
 
             if (log.isDebugEnabled()) {

@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.andes.kernel.subscription.AndesSubscription;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.carbon.metrics.manager.Counter;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.Meter;
@@ -134,6 +135,7 @@ public class AndesAckEvent {
         MessageTracer.trace(metadataReference.messageID,
                 metadataReference.getDestination(), MessageTracer.ACK_MESSAGE_REFERENCE_SET_BY_DISRUPTOR);
 
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(metadataReference.messageID), "Reached AndesAckEvent!");
         //Adding metrics meter for ack rate
         Meter ackMeter = MetricManager.meter(MetricsConstants.ACK_RECEIVE_RATE
                 + MetricsConstants.METRICS_NAME_SEPARATOR

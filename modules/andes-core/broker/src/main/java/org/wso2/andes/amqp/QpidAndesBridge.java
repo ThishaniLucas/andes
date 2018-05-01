@@ -61,6 +61,7 @@ import org.wso2.andes.server.store.StorableMessageMetaData;
 import org.wso2.andes.server.subscription.Subscription;
 import org.wso2.andes.server.subscription.SubscriptionImpl;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -286,6 +287,7 @@ public class QpidAndesBridge {
             //Tracing Message
             AndesAckData andesAckData = new AndesAckData(channelId, messageId);
             MessageTracer.traceAck(andesAckData, MessageTracer.ACK_RECEIVED_FROM_PROTOCOL);
+            AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageId), "Reached QpidAndesBridge!");
             Andes.getInstance().ackReceived(andesAckData);
         } catch (AndesException e) {
             log.error("Exception occurred while handling ack", e);

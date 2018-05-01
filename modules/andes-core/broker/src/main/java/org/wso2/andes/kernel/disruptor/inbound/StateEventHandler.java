@@ -28,6 +28,7 @@ import org.wso2.andes.kernel.MessageStatus;
 import org.wso2.andes.kernel.slot.SlotMessageCounter;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.Meter;
 import org.wso2.carbon.metrics.manager.MetricManager;
@@ -113,6 +114,7 @@ public class StateEventHandler implements EventHandler<InboundEventContainer> {
         for (AndesMessage message : messageList) {
             //Tracing Message
             MessageTracer.trace(message, MessageTracer.SLOT_INFO_UPDATED);
+            AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMetadata().getMessageID()), "Reached StateEventHandler!");
 
             //Adding metrics meter for ack rate
             Meter ackMeter = MetricManager.meter(MetricsConstants.ACK_SENT_RATE, Level.INFO);

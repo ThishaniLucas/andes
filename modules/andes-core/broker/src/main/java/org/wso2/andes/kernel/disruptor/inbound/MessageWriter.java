@@ -30,6 +30,7 @@ import org.wso2.andes.store.FailureObservingStoreManager;
 import org.wso2.andes.store.HealthAwareStore;
 import org.wso2.andes.store.StoreHealthListener;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +113,7 @@ public class MessageWriter implements StoreHealthListener {
                     for (AndesMessage message : messageList) {
                         //Tracing message
                         MessageTracer.trace(message, MessageTracer.CONTENT_WRITTEN_TO_DB);
+                        AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMetadata().getMessageID()), "Reached MessageWriter!");
                     }
                 }
 

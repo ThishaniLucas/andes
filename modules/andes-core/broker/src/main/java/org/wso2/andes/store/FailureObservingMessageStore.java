@@ -33,6 +33,7 @@ import org.wso2.andes.kernel.MessageStore;
 import org.wso2.andes.kernel.slot.RecoverySlotCreator;
 import org.wso2.andes.kernel.slot.Slot;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 import java.util.Collection;
 import java.util.List;
@@ -329,6 +330,7 @@ public class FailureObservingMessageStore extends FailureObservingStore<MessageS
             if (MessageTracer.isEnabled()) {
                 for (Long messageId : messagesToRemove) {
                     MessageTracer.trace(messageId, "", MessageTracer.MESSAGE_DELETED);
+                    AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageId), "Reached FailureObservingMsgStore!");
                 }
             }
 

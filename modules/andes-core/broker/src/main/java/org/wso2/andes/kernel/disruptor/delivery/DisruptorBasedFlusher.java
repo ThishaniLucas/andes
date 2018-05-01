@@ -33,6 +33,7 @@ import org.wso2.andes.kernel.disruptor.waitStrategy.SleepingBlockingWaitStrategy
 import org.wso2.andes.kernel.subscription.AndesSubscription;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.carbon.metrics.manager.Gauge;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.MetricManager;
@@ -141,6 +142,7 @@ public class DisruptorBasedFlusher {
 
         //Tracing Message
         MessageTracer.trace(metadata.getMessage(), MessageTracer.PUBLISHED_TO_OUTBOUND_DISRUPTOR);
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(metadata.getMessageID()), "Reached DisruptorBasedFlusher!");
 
         long nextSequence = ringBuffer.next();
 

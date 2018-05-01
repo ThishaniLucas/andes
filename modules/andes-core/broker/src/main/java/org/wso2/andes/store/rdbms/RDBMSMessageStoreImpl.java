@@ -43,6 +43,7 @@ import org.wso2.andes.store.AndesDataIntegrityViolationException;
 import org.wso2.andes.store.cache.AndesMessageCache;
 import org.wso2.andes.store.cache.MessageCacheFactory;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.Timer.Context;
@@ -795,6 +796,7 @@ public class RDBMSMessageStoreImpl implements MessageStore {
                 metadataList.add(md);
                 //Tracing message
                 MessageTracer.trace(md, slot, MessageTracer.METADATA_READ_FROM_DB);
+                AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(md.getMessageID()), "Reached RDBMSMsgStoreImpl!");
             }
             if (log.isDebugEnabled()) {
                 log.debug("request: metadata range (" + firstMsgId + " , " + lastMsgID + ") in destination queue "

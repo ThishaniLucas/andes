@@ -33,6 +33,7 @@ import org.wso2.andes.kernel.subscription.StorageQueue;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.server.ClusterResourceHolder;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.Meter;
 import org.wso2.carbon.metrics.manager.MetricManager;
@@ -311,6 +312,7 @@ public class MessagePreProcessor implements EventHandler<InboundEventContainer> 
         // Tracing message
         if (MessageTracer.isEnabled()) {
             MessageTracer.trace(messageId, message.getMetadata().getDestination(), MessageTracer.MESSAGE_ID_MAPPED);
+            AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMetadata().getMessageID()), "Reached MessagePreProcessor!");
         }
 
         for (AndesMessagePart messagePart: message.getContentChunkList()) {

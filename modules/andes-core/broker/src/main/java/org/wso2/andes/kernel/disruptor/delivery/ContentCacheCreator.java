@@ -33,6 +33,7 @@ import org.wso2.andes.kernel.DisruptorCachedContent;
 import org.wso2.andes.kernel.MessagingEngine;
 import org.wso2.andes.kernel.ProtocolMessage;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -179,6 +180,7 @@ public class ContentCacheCreator {
 
             //Tracing message
             MessageTracer.trace(metadata.getMessage(), MessageTracer.CONTENT_READ);
+            AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(metadata.getMessageID()), "Reached ContentCacheCreator!");
             logFailedMessageContentRetreivalErrors();
         }
     }

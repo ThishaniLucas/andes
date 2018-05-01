@@ -33,6 +33,7 @@ import org.wso2.andes.kernel.subscription.AndesSubscription;
 import org.wso2.andes.kernel.subscription.StorageQueue;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.carbon.metrics.manager.Counter;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.Meter;
@@ -98,6 +99,8 @@ public class DeliveryEventHandler implements EventHandler<DeliveryEventData> {
                     if (subscription.isActive()) {
                         //Tracing Message
                         MessageTracer.trace(message, MessageTracer.DISPATCHED_TO_PROTOCOL);
+                        AsynchronousMessageTracer
+                                .trace(System.currentTimeMillis(), String.valueOf(message.getMessageID()), "Reached DeliveryEventHandler!");
 
                         //Adding metrics meter for ack rate
                         Meter messageMeter = MetricManager.meter(MetricsConstants.MSG_SENT_RATE, Level.INFO);
