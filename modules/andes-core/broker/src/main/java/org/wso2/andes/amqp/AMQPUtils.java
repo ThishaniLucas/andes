@@ -20,6 +20,9 @@ package org.wso2.andes.amqp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.andes.framing.AMQShortString;
+import org.wso2.andes.framing.BasicContentHeaderProperties;
+import org.wso2.andes.framing.ContentHeaderProperties;
+import org.wso2.andes.framing.FieldTable;
 import org.wso2.andes.kernel.AndesContent;
 import org.wso2.andes.kernel.AndesException;
 import org.wso2.andes.kernel.AndesMessageMetadata;
@@ -170,6 +173,12 @@ public class AMQPUtils {
     public static AndesMessageMetadata convertAMQMessageToAndesMetadata(AMQMessage amqMessage) {
         MessageMetaData amqMetadata = amqMessage.getMessageMetaData();
         String queue = amqMetadata.getMessagePublishInfo().getRoutingKey().toString();
+        BasicContentHeaderProperties props = (BasicContentHeaderProperties) amqMetadata.getContentHeaderBody().getProperties();
+        String jmsID = props.getMessageIdAsString();
+        String jmsProps = "";
+        if(props.getHeaders() != null){
+            jmsProps = props.getHeaders().toString();
+        }
 
         final int bodySize = 1 + amqMetadata.getStorableSize();
         byte[] underlying = new byte[bodySize];
@@ -181,7 +190,8 @@ public class AMQPUtils {
         AndesMessageMetadata metadata = new AndesMessageMetadata(amqMessage.getMessageId(),underlying,true);
         metadata.setArrivalTime(amqMessage.getArrivalTime());
         metadata.setMessageContentLength(amqMetadata.getContentSize());
-
+        metadata.setJmsMessageId(jmsID);
+        metadata.setJmsProps(jmsProps);
         return metadata;
     }
 

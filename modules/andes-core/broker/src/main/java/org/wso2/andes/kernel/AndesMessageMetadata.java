@@ -22,6 +22,7 @@ package org.wso2.andes.kernel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.andes.amqp.AMQPUtils;
+import org.wso2.andes.framing.FieldTable;
 import org.wso2.andes.mqtt.MQTTMessageMetaData;
 import org.wso2.andes.mqtt.MQTTMetaDataHandler;
 import org.wso2.andes.mqtt.utils.MQTTUtils;
@@ -35,6 +36,16 @@ import java.util.Map;
 public class AndesMessageMetadata implements Comparable<AndesMessageMetadata> {
 
     private static Log log = LogFactory.getLog(AndesMessageMetadata.class);
+
+    /**
+     * JMS Properties
+     */
+    String jmsProps;
+
+    /**
+     * JMS Message ID
+     */
+    String jmsMessageId;
 
     /**
      * Unique identifier of the message
@@ -52,7 +63,6 @@ public class AndesMessageMetadata implements Comparable<AndesMessageMetadata> {
      * true if the message is addressed to a topic exchange.
      */
     boolean isTopic;
-
     /**
      * Name of the exchange message is addressed to
      */
@@ -83,8 +93,8 @@ public class AndesMessageMetadata implements Comparable<AndesMessageMetadata> {
      * Added for MQTT usage
      */
     private int messageContentLength;
-    private int qosLevel;
 
+    private int qosLevel;
     /**
      * The meta data type which specify which protocol this meta data belongs to``
      */
@@ -266,6 +276,14 @@ public class AndesMessageMetadata implements Comparable<AndesMessageMetadata> {
 
     public void setArrivalTime(long arrivalTime) {
         this.arrivalTime = arrivalTime;
+    }
+
+    public void setJmsMessageId(String jmsMessageId) {
+        this.jmsMessageId = jmsMessageId;
+    }
+
+    public String getJmsMessageId() {
+        return jmsMessageId;
     }
 
     /**
@@ -493,6 +511,14 @@ public class AndesMessageMetadata implements Comparable<AndesMessageMetadata> {
      */
     public boolean isExpirationDefined() {
         return 0L < expirationTime;
+    }
+
+    public String getJmsProps() {
+        return jmsProps;
+    }
+
+    public void setJmsProps(String jmsProps) {
+        this.jmsProps = jmsProps;
     }
 
 }
