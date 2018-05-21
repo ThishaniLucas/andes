@@ -24,8 +24,8 @@ public class FileWriterTask implements Runnable {
 
             while (!eventQueue.isEmpty()) {
                 LogEventFormat logEventFormat = eventQueue.poll();
-                csvPrinter.printRecord(new Timestamp(logEventFormat.getTimeStamp()), logEventFormat.getMsgId(),
-                        logEventFormat.getState());
+                csvPrinter.printRecord(new Timestamp(logEventFormat.getTimeStamp()), logEventFormat.getJmsProperties(), logEventFormat.getUser(), logEventFormat.getJmsMsgId(), logEventFormat.getDestination(),
+                        logEventFormat.getStatus());
             }
             csvPrinter.flush();
         } catch (IOException e) {

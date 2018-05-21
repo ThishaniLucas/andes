@@ -21,8 +21,8 @@ public class AsynchronousMessageTracer {
     private static ScheduledExecutorService executorFileRoller = Executors.newScheduledThreadPool(1);
     private static final File file = new File(Paths.get(System.getProperty(CARBON_HOME), "repository", "logs", "msg.csv").toString());
 
-    public static void trace(long timeStamp, String msgId, String state) {
-        LogEventFormat event = new LogEventFormat(timeStamp, msgId, state);
+    public static void trace(long timeStamp, String jmsProperties, String user, String msgId, String destination, TraceMessageStatus state) {
+        LogEventFormat event = new LogEventFormat(timeStamp, jmsProperties, user, msgId, destination, state);
         try {
             eventQueue.put(event);
         } catch (InterruptedException e) {
