@@ -81,7 +81,7 @@ public class LimitedSizeQueueEntryHolder extends LinkedHashMap<Long, QueueEntry>
      */
     private void simulateAcknowledgement(QueueEntry queueEntry) {
         try {
-            QpidAndesBridge.ackReceived(amqChannel.getId(), queueEntry.getMessage().getMessageNumber());
+            QpidAndesBridge.ackReceived(amqChannel.getId(), queueEntry.getMessage().getMessageNumber(), "", "", "", "");
         } catch (AMQException e) {
             _logger.error("Error while simulating acknowledgement for message id= " + queueEntry.getMessage()
                     .getMessageNumber(), e);
