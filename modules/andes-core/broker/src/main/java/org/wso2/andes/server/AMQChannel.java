@@ -95,7 +95,6 @@ import org.wso2.andes.server.virtualhost.AMQChannelMBean;
 import org.wso2.andes.server.virtualhost.VirtualHost;
 import org.wso2.andes.store.StoredAMQPMessage;
 import org.wso2.andes.tools.utils.MessageTracer;
-import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -518,11 +517,9 @@ public class AMQChannel implements SessionConfig, AMQSessionModel
                                     MessageTracer.trace(incomingMessage.getRoutingKey(), getId(),
                                             andesChannel.getIdentifier(),
                                             MessageTracer.MESSAGE_RECEIVED_TO_AMQ_CHANNEL);
-                                    AsynchronousMessageTracer
-                                            .trace(System.currentTimeMillis(), getId().toString(), "Reached AMQChannel!");
                                 }
                                 QpidAndesBridge
-                                        .messageReceived(incomingMessage, andesChannel, andesTransactionEvent);
+                                        .messageReceived(incomingMessage, andesChannel, andesTransactionEvent, getProtocolSession().getAuthorizedSubject().getPrincipals().iterator().next().getName());
 
                             } catch (Throwable e) {
                                 _logger.error("Error processing completed messages, Close the session " + getSessionName(),
@@ -1071,8 +1068,16 @@ public class AMQChannel implements SessionConfig, AMQSessionModel
                 _transaction.dequeue(this.getId(), ackedMessages, new MessageAcknowledgeAction(ackedMessages));
             } else {
                 for (QueueEntry entry : ackedMessages) {
+                    AMQMessage message =  (AMQMessage) entry.getMessage();
+                    BasicContentHeaderProperties props = (BasicContentHeaderProperties) message.getMessageMetaData().getContentHeaderBody().getProperties();
+                    String user = props.getUserIdAsString();
+                    String jmsID = props.getMessageIdAsString();
+                    String jmsProps = "";
+                    if(props.getHeaders() != null){
+                        jmsProps = props.getHeaders().toString();
+                    }
                     // When the message is acknowledged it is informed to Andes Kernel
-                    QpidAndesBridge.ackReceived(this.getId(), entry.getMessage().getMessageNumber());
+                    QpidAndesBridge.ackReceived(this.getId(), entry.getMessage().getMessageNumber(), user, jmsID, jmsProps, message.getAndesMetadataReference().getMessage().getDestination());
                 }
             }
             if (MessageTracer.isEnabled()) {
@@ -1080,7 +1085,6 @@ public class AMQChannel implements SessionConfig, AMQSessionModel
                     MessageTracer.trace(queueEntry.getMessage().getRoutingKey(), getId(), andesChannel.getIdentifier(),
                             isAttachedToADistributedTransaction(), deliveryTag, multiple,
                             MessageTracer.ACK_RECEIVED_TO_AMQ_CHANNEL);
-                    AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(getId()), "Reached AMQChannel Ack!");
                 }
             }
             updateTransactionalActivity();
