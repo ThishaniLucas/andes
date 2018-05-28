@@ -81,7 +81,7 @@ public class PersistenceStoreConnector implements MQTTConnector {
         if(retainMessageIdSet.contains(messageID + channelID.toString())) {
             retainMessageIdSet.remove(messageID + channelID.toString());
         } else {
-            Andes.getInstance().ackReceived(andesAckData);
+            Andes.getInstance().ackReceived(andesAckData, "", "", "", "");
         }
     }
 
@@ -141,7 +141,7 @@ public class PersistenceStoreConnector implements MQTTConnector {
             // Publish to Andes core
             AndesMessage andesMessage = new MQTTMessage(messageHeader);
             andesMessage.addMessagePart(messagePart);
-            Andes.getInstance().messageReceived(andesMessage, publisher.getChannel(), messageContext.getPubAckHandler());
+            Andes.getInstance().messageReceived(andesMessage, publisher.getChannel(), messageContext.getPubAckHandler(), "");
             if (log.isDebugEnabled()) {
                 log.debug(" Message added with message id " + messageContext.getMqttLocalMessageID());
             }
