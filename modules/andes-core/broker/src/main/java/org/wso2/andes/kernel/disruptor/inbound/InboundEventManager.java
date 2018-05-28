@@ -29,6 +29,7 @@ import org.wso2.andes.kernel.AndesAckData;
 import org.wso2.andes.kernel.AndesAckEvent;
 import org.wso2.andes.kernel.AndesChannel;
 import org.wso2.andes.kernel.AndesMessage;
+import org.wso2.andes.kernel.AndesMessageMetadata;
 import org.wso2.andes.kernel.DisablePubAckImpl;
 import org.wso2.andes.kernel.MessagingEngine;
 import org.wso2.andes.kernel.disruptor.ConcurrentBatchEventHandler;
@@ -40,6 +41,7 @@ import org.wso2.andes.kernel.dtx.DtxBranch;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.tools.utils.MessageTracer;
 import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
+import org.wso2.andes.tools.utils.async.TraceMessageStatus;
 import org.wso2.carbon.metrics.manager.Gauge;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.MetricManager;
@@ -202,7 +204,6 @@ public class InboundEventManager {
 
             //Tracing message activity
             MessageTracer.trace(message, MessageTracer.PUBLISHED_TO_INBOUND_DISRUPTOR);
-            AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMetadata().getMessageID()), "Reached Inbound Disruptor!");
 
             if (log.isDebugEnabled()) {
                 log.debug("[ sequence: " + sequence + " ] Message published to disruptor. Message id: "
@@ -233,7 +234,6 @@ public class InboundEventManager {
             //Tracing message
             if (MessageTracer.isEnabled()) {
                 MessageTracer.traceAck(ackData, MessageTracer.ACK_PUBLISHED_TO_DISRUPTOR );
-                AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(ackData.getMessageId()), "Reached Inbound Disruptor Ack!");
             }
 
             if (log.isDebugEnabled()) {
@@ -370,6 +370,9 @@ public class InboundEventManager {
         //Tracing message activity
         MessageTracer.traceTransaction(channel, transactionEvent.getQueuedMessages().size(), MessageTracer
                 .TRANSACTION_COMMIT_EVENT_PUBLISHED_TO_INBOUND_DISRUPTOR);
+
+        AndesMessageMetadata metadata = transactionEvent.getQueuedMessages().peek().getMetadata();
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), metadata.getJmsProps(), "",metadata.getJmsMessageId(), metadata.getDestination(), TraceMessageStatus.COMMITED);
     }
 
     /**
@@ -383,6 +386,9 @@ public class InboundEventManager {
         //Tracing message activity
         MessageTracer.traceTransaction(channel, transactionEvent.getQueuedMessages().size(), MessageTracer
                 .TRANSACTION_ROLLBACK_EVENT_PUBLISHED_TO_INBOUND_DISRUPTOR);
+
+        AndesMessageMetadata metadata = transactionEvent.getQueuedMessages().peek().getMetadata();
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), metadata.getJmsProps(), "",metadata.getJmsMessageId(), metadata.getDestination(), TraceMessageStatus.ROLLEDBACK);
     }
 
     /**
