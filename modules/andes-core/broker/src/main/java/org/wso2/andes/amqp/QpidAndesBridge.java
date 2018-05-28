@@ -128,13 +128,13 @@ public class QpidAndesBridge {
      * @throws AMQException when routing key is null
      */
     public static void messageReceived(IncomingMessage incomingMessage, AndesChannel andesChannel,
-            InboundTransactionEvent transactionEvent) throws AMQException {
+            InboundTransactionEvent transactionEvent, String user) throws AMQException {
         try {
             AndesMessage andesMessage = convertToAndesMessage(incomingMessage);
 
             // Handover message to Andes
             if(null == transactionEvent) { // not a transaction
-                Andes.getInstance().messageReceived(andesMessage, andesChannel, pubAckHandler);
+                Andes.getInstance().messageReceived(andesMessage, andesChannel, pubAckHandler, user);
             } else { // transaction event
                 transactionEvent.preProcessEnqueue(andesMessage);
             }
@@ -162,7 +162,7 @@ public class QpidAndesBridge {
      * @param andesChannel AndesChannel
      */
     public static void messageReceived(AndesMessage andesMessage, AndesChannel andesChannel) {
-        Andes.getInstance().messageReceived(andesMessage, andesChannel, pubAckHandler);
+        Andes.getInstance().messageReceived(andesMessage, andesChannel, pubAckHandler, "");
 
         //Following code is only a performance counter
         if (log.isDebugEnabled()) {
@@ -278,7 +278,7 @@ public class QpidAndesBridge {
         return contentLenWritten;
     }
 
-    public static void ackReceived(UUID channelId, long messageId)
+    public static void ackReceived(UUID channelId, long messageId, String user, String jmsId, String jmsProps, String destination)
             throws AMQException {
         try {
             if (log.isDebugEnabled()) {
@@ -287,8 +287,7 @@ public class QpidAndesBridge {
             //Tracing Message
             AndesAckData andesAckData = new AndesAckData(channelId, messageId);
             MessageTracer.traceAck(andesAckData, MessageTracer.ACK_RECEIVED_FROM_PROTOCOL);
-            AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageId), "Reached QpidAndesBridge!");
-            Andes.getInstance().ackReceived(andesAckData);
+            Andes.getInstance().ackReceived(andesAckData, user, jmsId, jmsProps, destination);
         } catch (AndesException e) {
             log.error("Exception occurred while handling ack", e);
             throw new AMQException(AMQConstant.INTERNAL_ERROR, "Error in getting handling ack for " + messageId, e);
