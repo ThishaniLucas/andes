@@ -46,6 +46,7 @@ import org.wso2.andes.kernel.subscription.StorageQueue;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.TraceMessageStatus;
 import org.wso2.carbon.metrics.manager.Counter;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.Meter;
@@ -143,6 +144,9 @@ public class Andes {
      */
     private final int maxParallelDtxConnections;
 
+    private AndesMessage message;
+    private String user;
+
     /**
      * Instance of AndesAPI returned.
      *
@@ -224,11 +228,12 @@ public class Andes {
      * @param andesChannel  AndesChannel
      * @param pubAckHandler PubAckHandler
      */
-    public void messageReceived(AndesMessage message, AndesChannel andesChannel, PubAckHandler pubAckHandler) {
+    public void messageReceived(AndesMessage message, AndesChannel andesChannel, PubAckHandler pubAckHandler, String user) {
 
         //Tracing message
         MessageTracer.trace(message, MessageTracer.REACHED_ANDES_CORE);
-        AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(message.getMetadata().getMessageID()), "Reached Andes!");
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), message.getMetadata().getJmsProps(), user, message.getMetadata().getJmsMessageId(), message.getMetadata().getDestination(),
+                TraceMessageStatus.PUBLISHED);
 
         inboundEventManager.messageReceived(message, andesChannel, pubAckHandler);
 
@@ -247,7 +252,9 @@ public class Andes {
      * @param ackData Acknowledgement information by protocol
      * @throws AndesException on an issue publishing ack event into disruptor
      */
-    public void ackReceived(AndesAckData ackData) throws AndesException {
+    public void ackReceived(AndesAckData ackData, String user, String jmsId, String jmsProps, String destination) throws AndesException {
+
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), jmsProps, user, jmsId, destination, TraceMessageStatus.ACKNOWLEDGED);
        //Adding metrics meter for ack rate
         Meter ackMeter = MetricManager.meter(MetricsConstants.ACK_RECEIVE_RATE, Level.INFO);
         ackMeter.mark();
