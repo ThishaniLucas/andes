@@ -21,6 +21,7 @@ package org.wso2.andes.amqp;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.andes.AMQException;
+import org.wso2.andes.framing.BasicContentHeaderProperties;
 import org.wso2.andes.kernel.Andes;
 import org.wso2.andes.kernel.AndesAckData;
 import org.wso2.andes.kernel.AndesContent;
@@ -41,6 +42,7 @@ import org.wso2.andes.server.subscription.SubscriptionImpl;
 import org.wso2.andes.kernel.subscription.OutboundSubscription;
 import org.wso2.andes.tools.utils.MessageTracer;
 import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
+import org.wso2.andes.tools.utils.async.TraceMessageStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -238,6 +240,14 @@ public class AMQPLocalSubscription implements OutboundSubscription {
 
         String msgHeaderStringID = (String) queueEntry.getMessageHeader().getHeader("msgID");
         long messageID = queueEntry.getMessage().getMessageNumber();
+        AMQMessage message =  (AMQMessage) queueEntry.getMessage();
+        BasicContentHeaderProperties props = (BasicContentHeaderProperties) message.getMessageMetaData().getContentHeaderBody().getProperties();
+        String user = props.getUserIdAsString();
+        String jmsID = props.getMessageIdAsString();
+        String jmsProps = "";
+        if(props.getHeaders() != null){
+            jmsProps = props.getHeaders().toString();
+        }
 
         try {
 
@@ -245,21 +255,23 @@ public class AMQPLocalSubscription implements OutboundSubscription {
 
                 MessageTracer.trace(messageID, queueEntry.getMessage().getRoutingKey(), getChannelID(),
                         MessageTracer.SENDING_MESSAGE_TO_SUBSCRIBER);
-                AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageID), "Reached AMQPLocalSubscription!");
+                TraceMessageStatus status = TraceMessageStatus.DELIVERED;
+                if (message.getAndesMetadataReference().isRedelivered()) {
+                    status = TraceMessageStatus.REDELIVERED;
+                }
+                AsynchronousMessageTracer.trace(System.currentTimeMillis(), jmsProps, user, jmsID, message.getAndesMetadataReference().getMessage().getDestination(), status);
                 amqpSubscription.send(queueEntry);
 
             } else if (amqpSubscription instanceof SubscriptionImpl.NoAckSubscription) {
 
                 MessageTracer.trace(messageID, queueEntry.getMessage().getRoutingKey(), getChannelID(),
                         MessageTracer.SENDING_MESSAGE_TO_SUBSCRIBER);
-                AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageID), "Reached AMQPLocalSubscription!");
-
-                amqpSubscription.send(queueEntry);
+                                amqpSubscription.send(queueEntry);
 
                 // After sending message we simulate acknowledgment for NoAckSubscription
                 UUID channelID = ((SubscriptionImpl.NoAckSubscription) amqpSubscription).getChannel().getId();
                 AndesAckData andesAckData = new AndesAckData(channelID, messageID);
-                Andes.getInstance().ackReceived(andesAckData);
+                Andes.getInstance().ackReceived(andesAckData, "", "", "", "");
 
             } else {
                 throw new AndesException("Error occurred while delivering message. Unexpected Subscription type for "
