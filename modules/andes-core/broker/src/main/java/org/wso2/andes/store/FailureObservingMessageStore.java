@@ -20,7 +20,10 @@ package org.wso2.andes.store;
 
 import com.gs.collections.impl.list.mutable.primitive.LongArrayList;
 import com.gs.collections.impl.map.mutable.primitive.LongObjectHashMap;
+import org.wso2.andes.AMQException;
+import org.wso2.andes.amqp.AMQPUtils;
 import org.wso2.andes.configuration.util.ConfigurationProperties;
+import org.wso2.andes.framing.BasicContentHeaderProperties;
 import org.wso2.andes.kernel.AndesContextStore;
 import org.wso2.andes.kernel.AndesException;
 import org.wso2.andes.kernel.AndesMessage;
@@ -32,8 +35,10 @@ import org.wso2.andes.kernel.DurableStoreConnection;
 import org.wso2.andes.kernel.MessageStore;
 import org.wso2.andes.kernel.slot.RecoverySlotCreator;
 import org.wso2.andes.kernel.slot.Slot;
+import org.wso2.andes.server.message.AMQMessage;
 import org.wso2.andes.tools.utils.MessageTracer;
 import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
+import org.wso2.andes.tools.utils.async.TraceMessageStatus;
 
 import java.util.Collection;
 import java.util.List;
@@ -308,12 +313,23 @@ public class FailureObservingMessageStore extends FailureObservingStore<MessageS
                 for (AndesMessageMetadata message : messagesToRemove) {
                     MessageTracer.trace(message.getMessageID(),
                                         message.getStorageQueueName(), MessageTracer.MESSAGE_DELETED);
+                    AMQMessage amqMessage = AMQPUtils.getAMQMessageFromAndesMetaData(message);
+                    BasicContentHeaderProperties props = (BasicContentHeaderProperties) amqMessage.getContentHeaderBody().getProperties();
+                    String user = props.getUserIdAsString();
+                    String jmsID = props.getMessageIdAsString();
+                    String jmsProps = "";
+                    if(props.getHeaders() != null){
+                        jmsProps = props.getHeaders().toString();
+                    }
+                    AsynchronousMessageTracer.trace(System.currentTimeMillis(), jmsProps, user, jmsID, amqMessage.getRoutingKey(), TraceMessageStatus.DELETED);
                 }
             }
 
         } catch (AndesStoreUnavailableException exception) {
             notifyFailures(exception);
             throw exception;
+        } catch (AMQException e) {
+
         }
 
     }
@@ -330,7 +346,6 @@ public class FailureObservingMessageStore extends FailureObservingStore<MessageS
             if (MessageTracer.isEnabled()) {
                 for (Long messageId : messagesToRemove) {
                     MessageTracer.trace(messageId, "", MessageTracer.MESSAGE_DELETED);
-                    AsynchronousMessageTracer.trace(System.currentTimeMillis(), String.valueOf(messageId), "Reached FailureObservingMsgStore!");
                 }
             }
 
