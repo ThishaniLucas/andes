@@ -23,6 +23,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.andes.AMQException;
+import org.wso2.andes.amqp.AMQPUtils;
+import org.wso2.andes.framing.BasicContentHeaderProperties;
 import org.wso2.andes.kernel.Andes;
 import org.wso2.andes.kernel.AndesContext;
 import org.wso2.andes.kernel.AndesException;
@@ -33,7 +36,10 @@ import org.wso2.andes.kernel.MessagingEngine;
 import org.wso2.andes.kernel.ProtocolType;
 import org.wso2.andes.metrics.MetricsConstants;
 import org.wso2.andes.server.ClusterResourceHolder;
+import org.wso2.andes.server.message.AMQMessage;
 import org.wso2.andes.tools.utils.MessageTracer;
+import org.wso2.andes.tools.utils.async.AsynchronousMessageTracer;
+import org.wso2.andes.tools.utils.async.TraceMessageStatus;
 import org.wso2.carbon.metrics.manager.Counter;
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.Meter;
@@ -390,6 +396,20 @@ public class AndesSubscription {
         if (!messageMetadata.isOKToDispose()) {
             MessageFlusher.getInstance().scheduleMessageForSubscription(this, messageMetadata);
             MessageTracer.trace(messageMetadata, MessageTracer.MESSAGE_REQUEUED_SUBSCRIBER);
+            AMQMessage amqMessage = AMQPUtils.getAMQMessageFromAndesMetaData(messageMetadata);
+            BasicContentHeaderProperties props = null;
+            try {
+                props = (BasicContentHeaderProperties) amqMessage.getContentHeaderBody().getProperties();
+            } catch (AMQException e) {
+
+            }
+            String user = props.getUserIdAsString();
+            String jmsID = props.getMessageIdAsString();
+            String jmsProps = "";
+            if(props.getHeaders() != null){
+                jmsProps = props.getHeaders().toString();
+            }
+            AsynchronousMessageTracer.trace(System.currentTimeMillis(), jmsProps, user, jmsID, amqMessage.getRoutingKey(), TraceMessageStatus.REQUEUED);
         } else {
             log.warn("Cannot reschedule message id= "+ messageMetadata.getMessageID()
                     + " as it is disposable. Status history " + messageMetadata.getStatusHistoryAsString());
