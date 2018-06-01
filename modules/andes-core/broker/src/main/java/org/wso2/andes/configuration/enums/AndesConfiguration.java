@@ -758,7 +758,22 @@ public enum AndesConfiguration implements ConfigurationProperty {
      * another node. Therefore it will not try to coordinate with other nodes (possibly non-existent) to
      * provide HA or clustering.
      */
-    DEPLOYMENT_MODE("deployment/mode","default", String.class);
+    DEPLOYMENT_MODE("deployment/mode","default", String.class),
+
+    /**
+     * Enable asynchronous message tracing
+     */
+    ENABLE_ASYNC_TRACE("asyncTrace/@enabled", "false", Boolean.class),
+
+    /**
+     * Time interval to take contents from the queue and write to file
+     */
+    WRITE_TIME_INTERVAL("asyncTrace/writeTime", "60", Long.class),
+
+    /**
+     * Time interval to roll the trace file
+     */
+    ROLL_TIME_INTERVAL("asyncTrace/rollTime", "1440", Long.class);
 
     /**
      * Meta data about configuration.
