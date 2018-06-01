@@ -748,9 +748,9 @@ public class Andes {
      * @return InboundTransactionEvent
      * @throws AndesException
      */
-    public InboundTransactionEvent newTransaction(AndesChannel channel) throws AndesException {
+    public InboundTransactionEvent newTransaction(AndesChannel channel, String user) throws AndesException {
         return new InboundTransactionEvent(messagingEngine, inboundEventManager, maxTxBatchSize, TX_EVENT_TIMEOUT,
-                                           channel);
+                                           channel, user);
     }
 
     /**

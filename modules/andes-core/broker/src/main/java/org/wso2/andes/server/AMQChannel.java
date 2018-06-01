@@ -506,7 +506,7 @@ public class AMQChannel implements SessionConfig, AMQSessionModel
                              * happen here
                              */
                                 if (beginPublisherTransaction) {
-                                    andesTransactionEvent = Andes.getInstance().newTransaction(andesChannel);
+                                    andesTransactionEvent = Andes.getInstance().newTransaction(andesChannel, getProtocolSession().getAuthorizedSubject().getPrincipals().iterator().next().getName());
                                     beginPublisherTransaction = false;
                                 }
                                 if (_logger.isDebugEnabled()) {

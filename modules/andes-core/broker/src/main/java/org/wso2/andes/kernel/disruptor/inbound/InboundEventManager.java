@@ -372,7 +372,7 @@ public class InboundEventManager {
                 .TRANSACTION_COMMIT_EVENT_PUBLISHED_TO_INBOUND_DISRUPTOR);
 
         AndesMessageMetadata metadata = transactionEvent.getQueuedMessages().peek().getMetadata();
-        AsynchronousMessageTracer.trace(System.currentTimeMillis(), metadata.getJmsProps(), "",metadata.getJmsMessageId(), metadata.getDestination(), TraceMessageStatus.COMMITED);
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), metadata.getJmsProps(), transactionEvent.getUser() ,metadata.getJmsMessageId(), metadata.getDestination(), TraceMessageStatus.COMMITED);
     }
 
     /**
@@ -388,7 +388,7 @@ public class InboundEventManager {
                 .TRANSACTION_ROLLBACK_EVENT_PUBLISHED_TO_INBOUND_DISRUPTOR);
 
         AndesMessageMetadata metadata = transactionEvent.getQueuedMessages().peek().getMetadata();
-        AsynchronousMessageTracer.trace(System.currentTimeMillis(), metadata.getJmsProps(), "",metadata.getJmsMessageId(), metadata.getDestination(), TraceMessageStatus.ROLLEDBACK);
+        AsynchronousMessageTracer.trace(System.currentTimeMillis(), metadata.getJmsProps(), transactionEvent.getUser() ,metadata.getJmsMessageId(), metadata.getDestination(), TraceMessageStatus.ROLLEDBACK);
     }
 
     /**

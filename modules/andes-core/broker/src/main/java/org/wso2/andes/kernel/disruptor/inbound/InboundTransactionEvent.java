@@ -100,6 +100,12 @@ public class InboundTransactionEvent implements AndesInboundStateEvent {
      */
     private boolean messagesStoredNotCommitted;
 
+    public String getUser() {
+        return user;
+    }
+
+    private String user;
+
     /**
      * messages list to be committed, enqueued messages
      */
@@ -159,7 +165,7 @@ public class InboundTransactionEvent implements AndesInboundStateEvent {
      * @param txWaitTimeout maximum wait time for commit, rollback or close event to complete
      */
     public InboundTransactionEvent(MessagingEngine messagingEngine, InboundEventManager eventManager,
-                                   int maxBatchSize, long txWaitTimeout, AndesChannel channel) {
+                                   int maxBatchSize, long txWaitTimeout, AndesChannel channel, String user) {
         this.messagingEngine = messagingEngine;
         this.eventManager = eventManager;
         messageQueue = new ConcurrentLinkedQueue<>();
@@ -167,6 +173,7 @@ public class InboundTransactionEvent implements AndesInboundStateEvent {
         this.maxBatchSize = maxBatchSize;
         this.channel = channel;
         this.txWaitTimeout = txWaitTimeout;
+        this.user = user;
     }
 
     /**
