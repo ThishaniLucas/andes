@@ -16,6 +16,5 @@ public class FileRollerTask implements Runnable {
                         System.currentTimeMillis()) + ".csv");
 
         sourceFile.renameTo(destFile);
-        sourceFile.delete();
     }
 }
